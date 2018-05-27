@@ -53,8 +53,16 @@ ggsurvplot(fit = survfit(res.cox, data = train.lung), palette="#2E9FDF",
 
 
 # create more cox ph models for comparison
-cox.ph2 <- coxph(Surv(time, status)~age+meal.cal+wt.loss, data=lung)
-cox.ph3 <- coxph(Surv(time, status)~sex+age+ph.ecog+ph.karno+pat.karno+meal.cal+wt.loss, data=lung)
+cox.ph2 <- coxph(Surv(time, status)~age+meal.cal+wt.loss, data=train.lung)
+cox.ph3 <- coxph(Surv(time, status)~sex+age+ph.ecog+ph.karno+pat.karno+meal.cal+wt.loss, data=train.lung)
+
+# create model with 
+# Random Forests For Survival, Regression, And Classification (RF-SRC)
+forest1 <- rfsrc(Surv(time,status)~age + sex + ph.ecog + ph.karno,data=train.lung,ntree=100,forest=T)
+forest2 <- rfsrc(Surv(time,status)~age+meal.cal+wt.loss,data=train.lung,ntree=100,forest=T)
+forest3 <- rfsrc(Surv(time,status)~sex+age+ph.ecog+ph.karno+pat.karno+meal.cal+wt.loss,data=train.lung,ntree=100,forest=T)
+
+
 
 # how good is the model? 
 # calculate concordance index
@@ -67,6 +75,25 @@ ApparrentCindex  <- pec::cindex(list("cPH ~ age, sex, ph.ecog, ph.karno"=res.cox
 
 print(ApparrentCindex)
 plot(ApparrentCindex)
+
+
+# how good is the model? 
+# calculate concordance index
+ApparrentCindex  <- pec::cindex(list("rf ~ age, sex, ph.ecog, ph.karno"=forest1, 
+                                     "rf ~ age, meal, wt.loss"=forest2, 
+                                     "rf ~ sex, age, ph.ecog, ph.karno, pat.karno, meal.cal, wt.loss"=forest3),
+                                formula=Surv(time,status)~age + sex + ph.ecog + ph.karno,
+                                data=test.lung,
+                                eval.times=seq(1,1022,1))
+
+print(ApparrentCindex)
+plot(ApparrentCindex)
+
+
+
+
+
+
 
 
 
