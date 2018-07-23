@@ -100,4 +100,3 @@ performance(cforest.tsk.pred, measures = mlr::cindex)
 mlr::performance(cforest.tsk.pred, measures = mlr::cindex, model = cforest.mod, task = cforest.tsk) # 0.8657095
 mlr::performance(cforest.tsk.pred, measures = cindex.uno, model = cforest.mod, task = cforest.tsk) # 0.7590004 
 mlr::performance(cforest.tsk.pred, measures = ibrier, model = cforest.mod, task = cforest.tsk)
-

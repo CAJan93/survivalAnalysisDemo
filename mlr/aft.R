@@ -54,8 +54,8 @@ plot(flexsurvreg(kidtransurv~1, dist="gompertz")) # ok
 # booth weibull and gamma distributions seem to fit good 
 aftmodel  <- survreg(Surv(time, delta) ~ gender + race + age, dist = "weibull", data = kidtran.train)
 
-flexAFT<-flexsurvreg(kidtransurv~kidtran.train$gender+kidtran.train$race+kidtran.train$age, dist = "weibull")
-plot(flexAFT, type="survival")
+# flexAFT<-flexsurvreg(kidtransurv~kidtran.train$gender+kidtran.train$race+kidtran.train$age, dist = "weibull")
+# plot(flexAFT, type="survival")
 
 # now predict values with aftmodel
 # why does this predict on the old data, not the new data? 
@@ -67,10 +67,11 @@ predicted <- predicted[kidtran.test$delta != 0]
 actual <- actual[!is.na(predicted)]
 predicted <- predicted[!is.na(predicted)]
 
-print(myCindex(predicted = as.vector(predicted), actual = actual)) # 0.4927536
+print(myCindex(predicted = as.vector(predicted), actual = actual)) # 0.4927536 # 0.60 ??? 
 
 # uno c-index, does not consider the underlying distribution
 predicted <- predict(aftmodel, newdata = kidtran.test)
 kidtransurv.test <- Surv(kidtran.test$time, kidtran.test$delta)
 # survAUC::UnoC(Surv.rsp = flexAFT, Surv.rsp.new = flexAFT, predicted ) # 0.5286549
 survAUC::UnoC(Surv.rsp = kidtransurv, Surv.rsp.new = kidtransurv.test, predicted ) # 0.5286549
+
