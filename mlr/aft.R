@@ -1,5 +1,5 @@
 # import packages
-list.of.packages <- c("car", "survival", "flexsurv", "KMsurv", "e1071", "rms", "survAUC", "pec")
+list.of.packages <- c("car", "survival", "flexsurv", "KMsurv", "e1071", "rms", "survAUC", "pec", "flexsurv")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if (length(new.packages)) install.packages(new.packages)
 lapply(list.of.packages, require, character.only = TRUE)
@@ -131,11 +131,10 @@ telco_churn_cor$Contract <- as.numeric(telco_churn_cor$Contract)
 
 fit <- Surv(telco_churn_cor$time, telco_churn_cor$Churn)
 
-library(flexsurv)
+
 plot(flexsurvreg(fit~1, dist="weibull"), main = "weibull", ylab="S(t)", xlab="t")  # good
 plot(flexsurvreg(fit~1, dist="exponential"), main = "exponential", ylab="S(t)", xlab="t") # bad
 plot(flexsurvreg(fit~1, dist="lognormal"), main = "lognormal", ylab="S(t)", xlab="t") # ok
-
 plot(flexsurvreg(fit~1, dist="gengamma"), main = "gengamma", ylab="S(t)", xlab="t") # ok
 plot(flexsurvreg(fit~1, dist="genf"), main = "genf", ylab="S(t)", xlab="t") # ok
 plot(flexsurvreg(fit~1, dist="llogis"), main = "llogis", ylab="S(t)", xlab="t") # ok

@@ -120,12 +120,12 @@ telco_churn_cor$Contract <- as.numeric(telco_churn_cor$Contract)
 
 
 if (T){
-# KM
-library(survminer)
-fit <- survfit(Surv(time, Churn) ~ 1,
-               data = telco_churn_cor)
-# Visualize with survminer
-ggsurvplot(fit, data = telco_churn_cor, risk.table = TRUE, title = "Kaplan-Meier curve", ylim = c(0.50, 1), palette="#C92A2F")
+  # KM
+  library(survminer)
+  fit <- survfit(Surv(time, Churn) ~ 1,
+                 data = telco_churn_cor)
+  # Visualize with survminer
+  ggsurvplot(fit, data = telco_churn_cor, risk.table = TRUE, title = "Kaplan-Meier curve", ylim = c(0.50, 1), palette="#C92A2F")
 }
 
 
@@ -135,36 +135,30 @@ cor(telco_churn_cor[, -which(names(telco_churn_cor) %in% c("Churn","customerID",
 
 telco_churn_cor$Churn <- as.logical(telco_churn_cor$Churn)
 if (F) {
-# cox proportional hazard
-coxph.lrn = makeLearner("surv.coxph") 
-coxph.tsk = makeSurvTask(id = "telco_churn_cor", data = telco_churn_cor[, -which(names(telco_churn_cor) %in% c("TotalCharges", "customerID"))], target = c("time", "Churn"))
-coxph.mod = train(coxph.lrn, coxph.tsk, subset = telco_churn.train_seq) 
-coxph.tsk.pred = predict(coxph.mod, task = coxph.tsk, subset = telco_churn.test_seq)
-# Does this give me how the risk of a person 
-# possible performance measures
-listMeasures(coxph.tsk)
-# what does this tell me? 
-performance(coxph.tsk.pred, measures = mlr::cindex) # 0.8728485 # 0.8473736 # 0.8716186 # 0.8677882 # 0.8595095 # 0.8572907 # 0.8647923 # 0.8683304 # 0.869991 # 0.8578821 # avg: 0.8637424899999999
-performance(coxph.tsk.pred, measure = cindex.uno, model = coxph.mod, task = coxph.tsk) # 0.8623853 # 0.9268293 # 0.8461538 # 0.9864865 # 0.9418605 # 0.8888889 # 0.99999 # 0.6666667 # 0.7565789 # 0.9345238 # avg: 0.88103637
-performance(coxph.tsk.pred, measures = ibrier, model = coxph.mod, task = coxph.tsk) # 0.178092 # 0.1753829 # 0.1777078 # 0.1769075 # 0.1766885 # 0.1767159 # 0.1753943 # 0.1748194 # 0.1775474 # 0.1753555 # avg: 0.17646112
+  # cox proportional hazard
+  coxph.lrn = makeLearner("surv.coxph") 
+  coxph.tsk = makeSurvTask(id = "telco_churn_cor", data = telco_churn_cor[, -which(names(telco_churn_cor) %in% c("TotalCharges", "customerID"))], target = c("time", "Churn"))
+  coxph.mod = train(coxph.lrn, coxph.tsk, subset = telco_churn.train_seq) 
+  coxph.tsk.pred = predict(coxph.mod, task = coxph.tsk, subset = telco_churn.test_seq)
+  # possible performance measures
+  listMeasures(coxph.tsk)
+  # what does this tell me? 
+  performance(coxph.tsk.pred, measures = mlr::cindex) # 0.8728485 # 0.8473736 # 0.8716186 # 0.8677882 # 0.8595095 # 0.8572907 # 0.8647923 # 0.8683304 # 0.869991 # 0.8578821 # avg: 0.8637424899999999
+  performance(coxph.tsk.pred, measure = cindex.uno, model = coxph.mod, task = coxph.tsk) # 0.8623853 # 0.9268293 # 0.8461538 # 0.9864865 # 0.9418605 # 0.8888889 # 0.99999 # 0.6666667 # 0.7565789 # 0.9345238 # avg: 0.88103637
+  performance(coxph.tsk.pred, measures = ibrier, model = coxph.mod, task = coxph.tsk) # 0.178092 # 0.1753829 # 0.1777078 # 0.1769075 # 0.1766885 # 0.1767159 # 0.1753943 # 0.1748194 # 0.1775474 # 0.1753555 # avg: 0.17646112
 }
 
 
 if (F){
-
-# cox proportional hazard with Componentwise Likelihood based Boosting
-coxboost.lrn = makeLearner("surv.CoxBoost") 
-coxboost.tsk = makeSurvTask(id = "telco_churn_cor" ,data = telco_churn_cor[, -which(names(telco_churn_cor) %in% c("TotalCharges", "customerID"))], target = c("time", "Churn"))
-coxboost.mod = train(coxboost.lrn, coxboost.tsk, subset = telco_churn.train_seq) 
-coxboost.tsk.pred = predict(coxboost.mod, task = coxboost.tsk, subset = telco_churn.test_seq)
-# Does this give me how the risk of a person 
-# possible performance measures
-listMeasures(coxboost.tsk)
-performance(coxboost.tsk.pred, measures = mlr::cindex) # 0.8299091 # 0.8282858 # 0.8413414 # 0.8422842 # 0.8534125 # 0.8375552 # 0.8377701 # 0.8264238 # 0.8293538 # 0.8496555
-performance(coxboost.tsk.pred, measures = cindex.uno, model = coxboost.mod, task = coxboost.tsk) # 0.7511111  # 0.79375 # 0.9047619 # 0.969697 # 0.7853982 # 0.76 # 0.7969697 # 0.875 # 0.2038835 # 0.908046
-#performance(coxboost.tsk.pred, measures = ibrier, model = coxboost.mod, task = coxboost.tsk)
-# performance(coxboost.tsk.pred, measures = timepredict, model = coxboost.mod, task = coxboost.tsk)
-#performance(coxph.tsk.pred,    measures = ibrier,      model = coxph.mod,    task = coxph.tsk) 
+  # cox proportional hazard with Componentwise Likelihood based Boosting
+  coxboost.lrn = makeLearner("surv.CoxBoost") 
+  coxboost.tsk = makeSurvTask(id = "telco_churn_cor" ,data = telco_churn_cor[, -which(names(telco_churn_cor) %in% c("TotalCharges", "customerID"))], target = c("time", "Churn"))
+  coxboost.mod = train(coxboost.lrn, coxboost.tsk, subset = telco_churn.train_seq) 
+  coxboost.tsk.pred = predict(coxboost.mod, task = coxboost.tsk, subset = telco_churn.test_seq)
+  # possible performance measures
+  listMeasures(coxboost.tsk)
+  performance(coxboost.tsk.pred, measures = mlr::cindex) # 0.8299091 # 0.8282858 # 0.8413414 # 0.8422842 # 0.8534125 # 0.8375552 # 0.8377701 # 0.8264238 # 0.8293538 # 0.8496555
+  performance(coxboost.tsk.pred, measures = cindex.uno, model = coxboost.mod, task = coxboost.tsk) # 0.7511111  # 0.79375 # 0.9047619 # 0.969697 # 0.7853982 # 0.76 # 0.7969697 # 0.875 # 0.2038835 # 0.908046
 }
 
 
@@ -175,41 +169,40 @@ performance(coxboost.tsk.pred, measures = cindex.uno, model = coxboost.mod, task
 
 
 if(F){
-
-# Cox Proportional Hazards Model with Componentwise Likelihood based Boosting,
-# tuned for the optimal number of boosting steps
-cvcoxboost.lrn = makeLearner("surv.cv.CoxBoost") 
-cvcoxboost.tsk = makeSurvTask(id = "telco_churn_cor", data = telco_churn_cor[, -which(names(telco_churn_cor) %in% c("TotalCharges", "customerID"))], target = c("time", "Churn"))
-cvcoxboost.mod = train(cvcoxboost.lrn, cvcoxboost.tsk, subset = telco_churn.train_seq) 
-cvcoxboost.tsk.pred = predict(cvcoxboost.mod, task = cvcoxboost.tsk, subset = telco_churn.test_seq)#telco_churn.test_seq)
-
-# possible performance measures
-listMeasures(cvcoxboost.tsk)
-
-performance(cvcoxboost.tsk.pred, measures = mlr::cindex) # 0.8476182
-performance(cvcoxboost.tsk.pred, measures = cindex.uno, model = cvcoxboost.mod, task = cvcoxboost.tsk) # 0.8255814
+  # Cox Proportional Hazards Model with Componentwise Likelihood based Boosting,
+  # tuned for the optimal number of boosting steps
+  cvcoxboost.lrn = makeLearner("surv.cv.CoxBoost") 
+  cvcoxboost.tsk = makeSurvTask(id = "telco_churn_cor", data = telco_churn_cor[, -which(names(telco_churn_cor) %in% c("TotalCharges", "customerID"))], target = c("time", "Churn"))
+  cvcoxboost.mod = train(cvcoxboost.lrn, cvcoxboost.tsk, subset = telco_churn.train_seq) 
+  cvcoxboost.tsk.pred = predict(cvcoxboost.mod, task = cvcoxboost.tsk, subset = telco_churn.test_seq)#telco_churn.test_seq)
+  
+  # possible performance measures
+  listMeasures(cvcoxboost.tsk)
+  
+  performance(cvcoxboost.tsk.pred, measures = mlr::cindex) # 0.8476182
+  performance(cvcoxboost.tsk.pred, measures = cindex.uno, model = cvcoxboost.mod, task = cvcoxboost.tsk) # 0.8255814
 }
 
 
 
 
 if (F){
-
-# Random Forest based on Conditional Inference Trees (with bagging)
-cforest.lrn = makeLearner("surv.cforest") 
-cforest.tsk = makeSurvTask(id = "telco_churn_cor", data = telco_churn_cor[, -which(names(telco_churn_cor) %in% c("TotalCharges", "customerID"))], target = c("time", "Churn"))
-cforest.mod = train(cforest.lrn, cforest.tsk, subset = telco_churn.train_seq) 
-# will give me -Inf as some results
-cforest.tsk.pred = predict(cforest.mod, task = cforest.tsk, subset = telco_churn.test_seq)
-
-# possible performance measures
-listMeasures(cforest.tsk)
-
-cforest.tsk.pred$data = cforest.tsk.pred$data[cforest.tsk.pred$data$response != -Inf,]
-
-# performance, excluding -inf
-performance(cforest.tsk.pred, measures = mlr::cindex) # 0.7069276 # 0.725202 # 0.7122673 # 0.7148753 # 0.7055392 # 0.7202865 # 0.7390247 # 0.7069126 # 0.7077237 # 0.6993006 
-mlr::performance(cforest.tsk.pred, measures = cindex.uno, model = cforest.mod, task = cforest.tsk) # 5.832794e-13 # 0.725202 # 8.737003e-15 # 6.371290e-14 # 2.387208e-16 # 1.122545e-13 # 0.8 # 0.75 # 1.535217e-16 # 0.6666667 
-
-mlr::performance(cforest.tsk.pred, measures = ibrier, model = cforest.mod, task = cforest.tsk) 
+  
+  # Random Forest based on Conditional Inference Trees (with bagging)
+  cforest.lrn = makeLearner("surv.cforest") 
+  cforest.tsk = makeSurvTask(id = "telco_churn_cor", data = telco_churn_cor[, -which(names(telco_churn_cor) %in% c("TotalCharges", "customerID"))], target = c("time", "Churn"))
+  cforest.mod = train(cforest.lrn, cforest.tsk, subset = telco_churn.train_seq) 
+  # will give me -Inf as some results
+  cforest.tsk.pred = predict(cforest.mod, task = cforest.tsk, subset = telco_churn.test_seq)
+  
+  # possible performance measures
+  listMeasures(cforest.tsk)
+  
+  cforest.tsk.pred$data = cforest.tsk.pred$data[cforest.tsk.pred$data$response != -Inf,]
+  
+  # performance, excluding -inf
+  performance(cforest.tsk.pred, measures = mlr::cindex) # 0.7069276 # 0.725202 # 0.7122673 # 0.7148753 # 0.7055392 # 0.7202865 # 0.7390247 # 0.7069126 # 0.7077237 # 0.6993006 
+  mlr::performance(cforest.tsk.pred, measures = cindex.uno, model = cforest.mod, task = cforest.tsk) # 5.832794e-13 # 0.725202 # 8.737003e-15 # 6.371290e-14 # 2.387208e-16 # 1.122545e-13 # 0.8 # 0.75 # 1.535217e-16 # 0.6666667 
+  
+  mlr::performance(cforest.tsk.pred, measures = ibrier, model = cforest.mod, task = cforest.tsk) 
 }
